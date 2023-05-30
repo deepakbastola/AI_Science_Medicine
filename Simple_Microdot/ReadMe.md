@@ -1,4 +1,4 @@
-The given code is a minimal example of a web application using the Microdot framework. Here's an explanation of the code:
+The given code is a minimal example of a web application using the Microdot framework. Here's how the code works:
 
 ```python
 from microdot import Microdot, Response
