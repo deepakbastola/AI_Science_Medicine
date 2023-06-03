@@ -31,7 +31,7 @@ The code defines two functions for handling GPU operations:
    
    Similar to the previous function, the input `data` is converted to a PyTorch tensor using `torch.tensor()`. However, this time, `requires_grad` is set to `False`, indicating that gradient calculation is not necessary. The data type and device specifications remain the same as in the previous function.
 
-These functions are useful when you want to perform computations on a GPU using PyTorch tensors. By using these functions, you can easily transfer your data to the GPU and take advantage of its computational capabilities.
+NOTE: These functions are useful when we want to perform computations on a GPU using PyTorch tensors. By using these functions, we can easily transfer our data to the GPU and take advantage of its computational capabilities.
 
 ### Defining plotting functions
 
