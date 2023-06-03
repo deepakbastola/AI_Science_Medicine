@@ -49,7 +49,7 @@ This line displays the image `im` by selecting all channels using `im[:,:,:]` an
 ```python
 plt.imshow(im[100:130,:,1],cmap='gray')
 ```
-This line displays a cropped version of the image `im` by selecting a specific range of rows (120 to 150) and all columns, and using only the second channel (green channel). This shows a cropped portion of the image, emphasizing the green channel.
+This line displays a cropped version of the image `im` by selecting a specific range of rows (100 to 130) and all columns, and using only the second channel (green channel). This shows a cropped portion of the image, emphasizing the green channel.
 
 ```python
 W = np.zeros((100,100,3))
