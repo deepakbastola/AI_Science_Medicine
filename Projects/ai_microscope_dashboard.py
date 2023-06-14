@@ -1,5 +1,5 @@
-from microdot import Microdot, Response
 import cv2
+from microdot import Microdot, Response
 
 app = Microdot()
 Response.default_content_type = 'text/html'
@@ -65,7 +65,7 @@ def htmldoc(content):
             </body>
         </html>
     '''
-
+#======================================================================================================================================
 @app.route('/')
 def home(request):
     content = '''
@@ -99,119 +99,53 @@ def home(request):
     '''
     return htmldoc(content)
 
-def capture_image():
+#============================================================================================
+# Microscope Connection
+
+def capture_image(folder_name):
     cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        return '<h2>Failed to open the webcam.</h2>'
+
     ret, frame = cap.read()
     cap.release()
     cv2.destroyAllWindows()
 
     # Save the captured frame as an image file
-    cv2.imwrite('captured_image.jpg', frame)
+    filename = f'{folder_name}/captured_image.jpg'
+    cv2.imwrite(filename, frame)
 
-    return '<h2>Image captured successfully!</h2>'
+    return f'<h2>Image captured successfully and saved in folder: {folder_name}</h2>'
+
+@app.route('/')
+def home(request):
+    content = '''
+        <h2>Instructions to the User / Help Features</h2>
+        <!-- Add help content here -->
+    '''
+    return htmldoc(content)
 
 @app.route('/microscope-connection')
 def microscope_connection(request):
     content = '''
         <h2>Microscope Connection</h2>
-        <p>Click the button below to capture an image from the microscope.</p>
+        <p>Click the button below to capture an image from the microscope and save it in a specific folder.</p>
         <form action="/capture-image" method="POST">
-            <input type="submit" value="Capture Image">
+            <button type="submit" name="folder" value="Folder 1">Save in Folder 1</button>
+            <button type="submit" name="folder" value="Folder 2">Save in Folder 2</button>
         </form>
     '''
     return htmldoc(content)
 
 @app.route('/capture-image', methods=['POST'])
 def capture_image_route(request):
-    return Response(capture_image(), content_type='text/html')
+    folder_name = request.form['folder']
+    return capture_image(folder_name)
 
-@app.route('/capture-data')
-def capture_data(request):
-    content = '''
-        <h2>Capture Data</h2>
-        <!-- Add capture data components here -->
-    '''
-    return htmldoc(content)
+#======================================================================================================================================
 
-@app.route('/archive-data')
-def archive_data(request):
-    content = '''
-        <h2>Archive Data</h2>
-        <!-- Add archive data components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/load-data')
-def load_data(request):
-    content = '''
-        <h2>Load Data</h2>
-        <!-- Add load data components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/view-data')
-def view_data(request):
-    content = '''
-        <h2>View Data</h2>
-        <!-- Add view data components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/label-data')
-def label_data(request):
-    content = '''
-        <h2>Label Data</h2>
-        <!-- Add label data components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/train-model')
-def train_model(request):
-    content = '''
-        <h2>Train Model</h2>
-        <!-- Add train model components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/save-model')
-def save_model(request):
-    content = '''
-        <h2>Save Model</h2>
-        <!-- Add save model components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/load-model')
-def load_model(request):
-    content = '''
-        <h2>Load Model</h2>
-        <!-- Add load model components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/test-model')
-def test_model(request):
-    content = '''
-        <h2>Test Model</h2>
-        <!-- Add test model components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/run-model')
-def run_model(request):
-    content = '''
-        <h2>Run Model</h2>
-        <!-- Add run model components here -->
-    '''
-    return htmldoc(content)
-
-@app.route('/visualize')
-def visualize(request):
-    content = '''
-        <h2>Visualize</h2>
-        <!-- Add visualize components here -->
-    '''
-    return htmldoc(content)
+# Add routes for other tabs similarly
 
 if __name__ == '__main__':
     app.run(debug=True, port=8008)
