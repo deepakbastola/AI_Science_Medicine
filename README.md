@@ -1,1 +1,1 @@
-# AI_Science_Medicine class works
+# AI_Science_Medicine
