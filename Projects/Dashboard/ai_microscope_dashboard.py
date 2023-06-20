@@ -3,8 +3,21 @@ import os
 import io
 import base64
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from microdot import Microdot, Response
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D
+from keras.optimizers import Adam
+from keras.preprocessing.image import ImageDataGenerator
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
+...
+
 
 app = Microdot()
 Response.default_content_type = 'text/html'
@@ -51,8 +64,8 @@ def htmldoc(content):
                     <ul>
                         <li><a href="/">Help & Guide</a></li>
                         <li><a href="/microscope-connection">Microscope Connection</a></li>     
-                        <li><a href="/load-dataset">Load Data</a></li>
-                        <li><a href="/view-dataset">View Data</a></li>
+                        <li><a href="/load-data">Load Data</a></li>
+                        <li><a href="/view-data">View Data</a></li>
                         <li><a href="/label-data">Label Data</a></li>
                         <li><a href="/train-model">Train Model</a></li>
                         <li><a href="/save-model">Save Model</a></li>
@@ -167,15 +180,17 @@ def microscope_connection(request):
     content = '''
         <h2>Microscope Connection</h2>
         <p>Click the button below to capture an image from the microscope and save it in a specific folder.</p>
-        <form action="/capture-image" method="POST">
+        <form action="/capture-image" method="POST">cc
             <button type="submit" name="folder" value="Folder 1">Save in Folder 1</button>
             <button type="submit" name="folder" value="Folder 2">Save in Folder 2</button>
         </form>
     '''
     return htmldoc(content)
 
-@app.route('/load-dataset')
-def load_dataset(request):
+
+#======================================================================================================================================
+@app.route('/load-data')
+def load_data(request):
     directory = '/home/mpcr/Desktop/images/train/class_1'
     image_size = (224, 224)  # adjust this to the size of your images
     global data
@@ -192,6 +207,9 @@ def load_dataset(request):
 
     return htmldoc(f'<h1>Successfully loaded {len(data)} images</h1>')
 
+
+
+#======================================================================================================================================
 def savefig_b64():
     buf = io.BytesIO()
     plt.savefig(buf,format='png')
@@ -199,11 +217,11 @@ def savefig_b64():
     imdata = f'data:image/png;base64,{im_b64.decode("utf-8")}'
     return imdata
 
-@app.route('/view-dataset')
-def view_dataset(request):
-    # Assuming you have already called the load_dataset function
-    #data = load_dataset()
 
+#======================================================================================================================================
+@app.route('/view-data')
+def view_data(request):
+ 
     num_images = len(data)
     num_cols = 4
     num_rows = (num_images + num_cols - 1) // num_cols
@@ -226,12 +244,107 @@ def view_dataset(request):
     return htmldoc(f'<image src={imdata} />')
 
 
-# @app.route('/capture-image', methods=['POST'])
-# def capture_image_route(request):
-#     folder_name = request.form['folder']
-#     return capture_image(folder_name)
+#======================================================================================================================================
+
+@app.route('/label-data')
+def label_data(request):
+    num_images = len(data)
+    num_cols = 4
+    num_rows = (num_images + num_cols - 1) // num_cols
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
+    axes = axes.flatten()
+
+    labels = []
+    for i, img_flattened in enumerate(data):
+        img = img_flattened.reshape(224, 224)
+        axes[i].imshow(img, cmap='gray')
+        axes[i].axis('off')
+
+        # Assuming labeling is done manually, let's generate some random labels for demo purposes
+        label = i % 2  # alternate between labels 0 and 1
+        labels.append(label)
+        axes[i].set_title(f'Label: {label}')  # Display the label on the plot
+
+    for j in range(num_images, num_cols * num_rows):
+        axes[j].axis('off')
+
+    plt.tight_layout()
+    imdata = savefig_b64()
+    plt.close()  # Close the figure to free up resources
+
+    # Save the labels to a DataFrame (you could also save this to a file)
+    global df
+    df = pd.DataFrame({
+        'image': [img.tolist() for img in data],  # Store the flattened images
+        'label': labels  # Store the labels
+    })
+
+    return htmldoc(f'<h2>Successfully labeled {len(data)} images</h2><image src={imdata} />')
+
 
 #======================================================================================================================================
+
+# # Train Model
+# @app.route('/train-model')
+# def train_model(request):
+#     global model
+#     model = Sequential()
+
+#     # Configure the parameters of the model according to your needs
+#     model.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(224,224,1)))
+#     model.add(Conv2D(32, kernel_size=3, activation='relu'))
+#     model.add(MaxPooling2D(pool_size=(2,2)))
+#     model.add(Flatten())
+#     model.add(Dense(2, activation='softmax'))  # assuming binary classification; for multi-class classification, increase this number
+
+#     model.compile(optimizer=Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+#     # Transform the data and labels into a format suitable for training
+#     X = np.array(df['image'].to_list()).reshape(-1, 224, 224, 1)  # reshape into format (num_images, height, width, num_channels)
+#     y = df['label'].values
+
+#     # Split the data into training and validation sets
+#     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)  # adjust the test_size and random_state as needed
+
+#     # Normalize the images
+#     X_train = X_train / 255
+#     X_val = X_val / 255
+
+#     # Augment the images
+#     datagen = ImageDataGenerator(
+#         featurewise_center=True,
+#         featurewise_std_normalization=True,
+#         rotation_range=20,
+#         width_shift_range=0.2,
+#         height_shift_range=0.2,
+#         horizontal_flip=True)
+
+#     # Compute quantities required for featurewise normalization
+#     # (std, mean, and principal components if ZCA whitening is applied).
+#     datagen.fit(X_train)
+
+#     # Train the model
+#     history = model.fit(datagen.flow(X_train, y_train, batch_size=32), validation_data=(X_val, y_val), epochs=5)  # adjust the batch_size and epochs as needed
+
+#     # Show the training history
+#     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
+#     ax1.plot(history.history['loss'], color='b', label="Training loss")
+#     ax1.plot(history.history['val_loss'], color='r', label="validation loss")
+#     ax1.set_xticks(np.arange(1, 5, 1))
+#     ax1.set_yticks(np.arange(0, 1, 0.1))
+#     ax2.plot(history.history['accuracy'], color='b', label="Training accuracy")
+#     ax2.plot(history.history['val_accuracy'], color='r',label="Validation accuracy")
+#     ax2.set_xticks(np.arange(1, 5, 1))
+#     legend = plt.legend(loc='best', shadow=True)
+#     plt.tight_layout()
+#     imdata = savefig_b64()
+#     plt.close()  # Close the figure to free up resources
+
+#     return htmldoc(f'<h2>Successfully trained the model</h2><image src={imdata} />')
+
+#======================================================================================================================================
+
 
 # Add routes for other tabs similarly
 
