@@ -1,1 +1,1 @@
-# AI_Science_Medicine
+# AI in Science & Medicine
