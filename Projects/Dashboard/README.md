@@ -37,3 +37,4 @@ This Flask web application has several endpoints:
 * Deploy the application to a production environment.
 
 Please feel free to contribute to this project and enhance its features.
+ Project completed by myself and [Francis Boateng](https://github.com/fBoatengs/AI_in_SCience_and_Medicine)
