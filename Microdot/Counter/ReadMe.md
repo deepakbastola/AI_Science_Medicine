@@ -52,9 +52,4 @@ This repository also includes a scatter plot application that generates a random
 
 If you are interested in contributing to this project, feel free to fork the repository and submit a pull request. Contributions are always welcome!
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
 ```
-
-You can copy and save this content in a file named `README.md` in your GitHub repository. Feel free to customize the content as per your requirements and provide any additional information or instructions related to your project.
