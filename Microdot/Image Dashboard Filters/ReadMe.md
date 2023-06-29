@@ -64,3 +64,61 @@ def index(request):
     url = 'https://media.geeksforgeeks.org/wp-content/uploads/20230329095332/RGB-arrays-combined-to-make-image.jpg'
     response = requests.get(url)
     gray_img = Image
+
+.open(BytesIO(response.content)).convert('L')
+
+    kernel_images = {k: apply_kernel(gray_img, v) for k, v in kernels.items()}
+    img_elements = [f'<div><h3>{k}</h3><img src="{image_to_data_url(v)}" alt="{k}"></div>' for k, v in kernel_images.items()]
+
+    html_content = f"""
+			<!DOCTYPE html>
+			<html>
+			    <head>
+				<style>
+				    body {{
+					font-family: Arial, sans-serif;
+				    }}
+				    .image-grid {{
+					display: grid;
+					grid-template-columns: repeat(3, 1fr);
+					gap: 20px;
+					justify-items: center;
+					align-items: center;
+					padding: 20px;
+				    }}
+				    .image-grid div {{
+					box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+					padding: 10px;
+					background-color: #fff;
+					border-radius: 5px;
+				    }}
+				    .image-grid img {{
+					max-width: 100%;
+					height: auto;
+				    }}
+				</style>
+			    </head>
+			    <body>
+				<h2>Image Filters</h2>
+				<div class="image-grid">
+				    {''.join(img_elements)}
+				</div>
+			    </body>
+			</html>
+			"""
+    return html_content
+```
+
+- The `index()` function is the request handler for the root URL ("/").
+- It fetches the image from the URL and converts it to grayscale.
+- For each kernel in the `kernels` dictionary, the function applies the kernel to the grayscale image using `apply_kernel()` and generates an HTML element containing the kernel name and the corresponding filtered image.
+- These HTML elements are joined together and embedded in a larger HTML template that creates a grid layout for displaying the filtered images.
+
+```python
+app.run(debug=True, port=8008)
+```
+
+- The web application is run using `app.run()`.
+- The application runs in debug mode and listens on port 8008 for incoming requests.
+
+This code sets up a web application that applies different image filters to a grayscale image. The filtered images are displayed in a grid layout on a web page.
