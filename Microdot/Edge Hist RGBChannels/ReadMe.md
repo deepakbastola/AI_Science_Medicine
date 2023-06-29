@@ -4,7 +4,6 @@
 
 This is a web application built with Microdot that allows you to explore different visual aspects of an image, including grayscale conversion, channel separation, histogram analysis, and edge detection.
 
-![Image Dashboard Screenshot](image_dashboard_screenshot.png)
 
 ## Features
 
